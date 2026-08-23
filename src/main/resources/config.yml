@@ -1,0 +1,46 @@
+###################################################
+# +---------------------------------------------+ #
+# |             Database Connection             | #
+# +---------------------------------------------+ #
+###################################################
+
+# CAUTION! Developer mode will drop all database tables on startup. DO NOT USE IN PRODUCTION.
+developer-mode: true
+
+# Database connection settings.
+mysql:
+  host: localhost
+  port: 3306
+  username: unitedeconomy
+  password: unitedeconomy
+  database: unitedeconomy
+
+default-world-name: default
+default-currency: Gold
+
+currencies:
+  Gold:
+    symbol: 'G'
+    format: '%,.2fG'
+    singular: 'Gold'
+    plural: 'Gold'
+  Dollars:
+    symbol: '$'
+    format: '$%,.2f'
+    singular: 'Dollar'
+    plural: 'Dollars'
+
+messages: 
+  prefix: "<bold><red>U</red><white>L</white> <gray>Economy</gray> <dark_gray>» </dark_gray></bold>"
+  reload: "<dark_green>Plugin reloaded.</dark_green>"
+
+  errors:
+    player-not-found: "<red>Could not find player {name}.</red>"
+    wrong-number-format: "<red>{input} is not a number.</red>"
+
+  give: "<aqua>{amount} given to player {name}. New balance: {balance}</aqua>" 
+  balance: "<aqua>{name}'s balance:</aqua>" 
+
+  account-set: "Your bank account has been set to {amount}"
+  account-deposit: "{amount} has been put into your bank account, new balance: {balance}"
+  account-withdraw: "{amount} has been taken from your bank account, new balance: {balance}"

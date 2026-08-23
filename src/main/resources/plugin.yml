@@ -1,0 +1,12 @@
+name: UnitedEconomy
+version: 0.0.1
+main: org.unitedlands.economy.UnitedEconomy
+api-version: 1.18
+description: Project description
+author: Theriel_
+depend: [ Vault ]
+commands:
+   ulmoney:
+      description: UnitedLands money admin commands.
+      permission: united.economy.admin
+      aliases: [ ulm ]
