@@ -7,10 +7,8 @@ import java.util.Optional;
 import java.util.UUID;
 
 import org.jetbrains.annotations.NotNull;
-import org.unitedlands.economy.Settings;
+import org.unitedlands.economy.classes.config.UnitedEconomyConfig;
 import org.unitedlands.economy.managers.BankAccountManager;
-import org.unitedlands.utils.Logger;
-
 import net.milkbowl.vault2.economy.EconomyResponse.ResponseType;
 import net.milkbowl.vault2.economy.AccountPermission;
 import net.milkbowl.vault2.economy.Economy;
@@ -20,31 +18,31 @@ public class ULEconomy implements Economy {
 
     @Override
     public @NotNull Collection<String> currencies() {
-        return Settings.instance().getCurrencyKeys();
+        return UnitedEconomyConfig.get().currencies().keys();
     }
 
     @Override
     public @NotNull String defaultCurrencyNamePlural(@NotNull String arg0) {
-        return Settings.instance().getDefaultCurrency().getNamePlural();
+        return BankAccountManager.instance().getDefaultCurrency().plural();
     }
 
     @Override
     public @NotNull String defaultCurrencyNameSingular(@NotNull String arg0) {
-        return Settings.instance().getDefaultCurrency().getNameSingular();
+        return BankAccountManager.instance().getDefaultCurrency().singular();
     }
 
     @Override
     public boolean accountSupportsCurrency(@NotNull final String pluginName, @NotNull final UUID accountID,
             @NotNull final String currency) {
         // All accounts support all currencies as long as the currency exist
-        return Settings.instance().getCurrencyKeys().contains(currency);
+        return UnitedEconomyConfig.get().currencies().has(currency);
     }
 
     @Override
     public boolean accountSupportsCurrency(@NotNull final String pluginName, @NotNull final UUID accountID,
             @NotNull final String currency, @NotNull final String world) {
         // All accounts support all currencies as long as the currency exist
-        return Settings.instance().getCurrencyKeys().contains(currency);
+        return UnitedEconomyConfig.get().currencies().has(currency);
     }
 
     @Override
@@ -101,36 +99,36 @@ public class ULEconomy implements Economy {
 
     @Override
     public @NotNull String format(@NotNull BigDecimal amount) {
-        var currency = Settings.instance().getDefaultCurrency();
-        return String.format(currency.getFormat(), amount);
+        var currency = BankAccountManager.instance().getDefaultCurrency();
+        return String.format(currency.format(), amount);
     }
 
     @Override
     public @NotNull String format(@NotNull final String pluginName, @NotNull final BigDecimal amount) {
-        var currency = Settings.instance().getDefaultCurrency();
-        return String.format(currency.getFormat(), amount);
+        var currency = BankAccountManager.instance().getDefaultCurrency();
+        return String.format(currency.format(), amount);
     }
 
     @Override
     public @NotNull String format(@NotNull final BigDecimal amount, @NotNull final String currencyKey) {
-        var currency = Settings.instance().getDefaultCurrency();
-        if (Settings.instance().getCurrencyKeys().contains(currencyKey))
-            currency = Settings.instance().getCurrency(currencyKey);
-        return String.format(currency.getFormat(), amount);
+        var currency = BankAccountManager.instance().getDefaultCurrency();
+        if (UnitedEconomyConfig.get().currencies().has(currencyKey))
+            currency = UnitedEconomyConfig.get().currencies().get(currencyKey);
+        return String.format(currency.format(), amount);
     }
 
     @Override
     public @NotNull String format(@NotNull final String pluginName, @NotNull final BigDecimal amount,
             @NotNull final String currencyKey) {
-        var currency = Settings.instance().getDefaultCurrency();
-        if (Settings.instance().getCurrencyKeys().contains(currencyKey))
-            currency = Settings.instance().getCurrency(currencyKey);
-        return String.format(currency.getFormat(), amount);
+        var currency = BankAccountManager.instance().getDefaultCurrency();
+        if (UnitedEconomyConfig.get().currencies().has(currencyKey))
+            currency = UnitedEconomyConfig.get().currencies().get(currencyKey);
+        return String.format(currency.format(), amount);
     }
 
     @Override
     public int fractionalDigits(@NotNull final String pluginName) {
-        return Settings.instance().getRoundingDigits();
+        return 2;
     }
 
     @Override
@@ -157,7 +155,7 @@ public class ULEconomy implements Economy {
 
     @Override
     public @NotNull String getDefaultCurrency(@NotNull String pluginName) {
-        return Settings.instance().getDefaultCurrency().getKey();
+        return UnitedEconomyConfig.get().defaultCurrency();
     }
 
     @Override
@@ -202,7 +200,7 @@ public class ULEconomy implements Economy {
 
     @Override
     public boolean hasCurrency(@NotNull final String currency) {
-        return Settings.instance().getCurrencyKeys().contains(currency);
+        return UnitedEconomyConfig.get().currencies().has(currency);
     }
 
     @Override

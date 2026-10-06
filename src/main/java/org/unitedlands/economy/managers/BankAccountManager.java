@@ -9,33 +9,26 @@ import java.util.concurrent.CompletableFuture;
 import java.util.stream.Collectors;
 
 import org.bukkit.Bukkit;
-import org.unitedlands.economy.Settings;
-import org.unitedlands.economy.UnitedEconomy;
 import org.unitedlands.economy.classes.BankAccount;
 import org.unitedlands.economy.classes.BankAccountHolder;
-import org.unitedlands.economy.classes.Currency;
+import org.unitedlands.economy.classes.config.UnitedEconomyConfig;
+import org.unitedlands.economy.classes.config.UnitedEconomyConfig.CurrencyRecord;
 import org.unitedlands.economy.utils.EconomyActivityLogger;
-import org.unitedlands.interfaces.IMessageProvider;
-import org.unitedlands.utils.Logger;
-import org.unitedlands.utils.Messenger;
+import org.unitedlands.utils.United;
 
 public class BankAccountManager {
 
-    private static BankAccountManager instance;
+    private static final String LOG_NUMBER_FORMAT = "%.2f";
 
+    private static BankAccountManager instance;
+    
     public static BankAccountManager instance() {
         return instance;
     }
 
-    @SuppressWarnings("unused")
-    private final UnitedEconomy plugin;
-    private final IMessageProvider messageProvider;
-
     private Map<UUID, BankAccountHolder> bankAccounts = new HashMap<>();
 
-    public BankAccountManager(UnitedEconomy plugin, IMessageProvider messageProvider) {
-        this.plugin = plugin;
-        this.messageProvider = messageProvider;
+    public BankAccountManager() {
         instance = this;
     }
 
@@ -52,7 +45,7 @@ public class BankAccountManager {
                         buildAccounts(accountHolderFuture.join(), accountFuture.join());
                     }).get();
         } catch (Exception ex) {
-            Logger.logError("Initialization failed: " + ex.getMessage(), "UnitedEconomy");
+            United.logger().error("Initialization failed: " + ex.getMessage());
             throw new RuntimeException("App init failed", ex);
         }
 
@@ -72,7 +65,7 @@ public class BankAccountManager {
             }
             holder.addAccount(account);
         }
-        Logger.log("Loaded " + loadedAccounts.size() + " accounts for " + loadedAccountHolders.size() + " account holders.");
+        United.logger().info("Loaded " + loadedAccounts.size() + " accounts for " + loadedAccountHolders.size() + " account holders.");
     }
 
     public Map<UUID, String> getUuidNameMap() {
@@ -94,6 +87,9 @@ public class BankAccountManager {
     }
 
     public BankAccount getOrCreateBankAccount(UUID uuid, String name, String worldName, String currencyKey) {
+
+        worldName = validateWorld(worldName);
+
         var bankAccountHolder = getOrCreateBankAccountHolder(uuid, name);
 
         var bankAccount = bankAccountHolder.getAccount(worldName, currencyKey);
@@ -117,16 +113,20 @@ public class BankAccountManager {
 
     // Balance
 
-    public Map<Currency, BigDecimal> getBalances(UUID uuid, String name, String worldName) {
-        var balances = new HashMap<Currency, BigDecimal>();
+    public Map<CurrencyRecord, BigDecimal> getBalances(UUID uuid, String name, String worldName) {
+
+        worldName = validateWorld(worldName);
+
+        var balances = new HashMap<CurrencyRecord, BigDecimal>();
         var accountHolder = getOrCreateBankAccountHolder(uuid, name);
         for (var account : accountHolder.getAccounts(worldName)) {
-            balances.put(Settings.instance().getCurrency(account.getCurrencyKey()), account.getBalance());
+            balances.put(UnitedEconomyConfig.get().currencies().get(account.getCurrencyKey()), account.getBalance());
         }
         return balances;
     }
 
     public BigDecimal getBalance(UUID uuid, String name, String worldName, String currencyKey) {
+        worldName = validateWorld(worldName);
         var bankAccount = getOrCreateBankAccount(uuid, name, worldName, currencyKey);
         return bankAccount.getBalance();
     }
@@ -134,6 +134,7 @@ public class BankAccountManager {
     // Has
 
     public boolean has(UUID uuid, String name, BigDecimal amount, String worldName, String currencyKey) {
+        worldName = validateWorld(worldName);
         var bankAccount = getOrCreateBankAccount(uuid, name, worldName, currencyKey);
         return bankAccount.hasAmount(amount);
     }
@@ -142,17 +143,19 @@ public class BankAccountManager {
 
     public BigDecimal deposit(UUID uuid, String name, BigDecimal amount, String worldName, String currencyKey) {
 
+        worldName = validateWorld(worldName);
+
         if (currencyKey == null)
-            currencyKey = Settings.instance().getDefaultCurrency().getKey();
+            currencyKey = UnitedEconomyConfig.get().defaultCurrency();
 
         var bankAccount = getOrCreateBankAccount(uuid, name, worldName, currencyKey);
         var newBalance = bankAccount.addAmount(amount);
 
-        EconomyActivityLogger.log(uuid.toString() + " (" + name + ") RECEIVED " + amount.toString() + " "
-                + currencyKey + " (--> " + newBalance.toString() + " " + currencyKey + ")");
+        EconomyActivityLogger.log(uuid.toString() + " (" + name + ") RECEIVED " + String.format(LOG_NUMBER_FORMAT, amount) + " "
+                + currencyKey + " (--> " + String.format(LOG_NUMBER_FORMAT, newBalance) + " " + currencyKey + ")");
         DatabaseManager.instance().getBankAccountService().updateAsync(bankAccount);
 
-        sendNotification(uuid, "messages.account-deposit", amount, newBalance, currencyKey);
+        sendNotification(uuid, "account-deposit", amount, newBalance, currencyKey);
 
         return newBalance;
     }
@@ -161,17 +164,19 @@ public class BankAccountManager {
 
     public BigDecimal withdraw(UUID uuid, String name, BigDecimal amount, String worldName, String currencyKey) {
 
+        worldName = validateWorld(worldName);
+
         if (currencyKey == null)
-            currencyKey = Settings.instance().getDefaultCurrency().getKey();
+            currencyKey = UnitedEconomyConfig.get().defaultCurrency();
 
         var bankAccount = getOrCreateBankAccount(uuid, name, worldName, currencyKey);
         var newBalance = bankAccount.removeAmount(amount);
 
-        EconomyActivityLogger.log(uuid.toString() + " (" + name + ") LOST " + amount.toString()
-                + " " + currencyKey + " (--> " + newBalance.toString() + " " + currencyKey + ")");
+        EconomyActivityLogger.log(uuid.toString() + " (" + name + ") LOST " + String.format(LOG_NUMBER_FORMAT, amount)
+                + " " + currencyKey + " (--> " + String.format(LOG_NUMBER_FORMAT, newBalance) + " " + currencyKey + ")");
         DatabaseManager.instance().getBankAccountService().updateAsync(bankAccount);
 
-        sendNotification(uuid, "messages.account-withdraw", amount, newBalance, currencyKey);
+        sendNotification(uuid, "account-withdraw", amount, newBalance, currencyKey);
 
         return newBalance;
     }
@@ -180,17 +185,19 @@ public class BankAccountManager {
 
     public BigDecimal set(UUID uuid, String name, BigDecimal amount, String worldName, String currencyKey) {
 
+        worldName = validateWorld(worldName);
+
         if (currencyKey == null)
-            currencyKey = Settings.instance().getDefaultCurrency().getKey();
+            currencyKey = UnitedEconomyConfig.get().defaultCurrency();
 
         var bankAccount = getOrCreateBankAccount(uuid, name, worldName, currencyKey);
         var newBalance = bankAccount.setAmount(amount);
 
-        EconomyActivityLogger.log(uuid.toString() + " (" + name + ") SET TO " + amount.toString() + " "
-                + currencyKey + " (--> " + newBalance.toString() + " " + currencyKey + ")");
+        EconomyActivityLogger.log(uuid.toString() + " (" + name + ") SET TO " + String.format(LOG_NUMBER_FORMAT, amount) + " "
+                + currencyKey + " (--> " + String.format(LOG_NUMBER_FORMAT, newBalance) + " " + currencyKey + ")");
         DatabaseManager.instance().getBankAccountService().updateAsync(bankAccount);
 
-        sendNotification(uuid, "messages.account-set", amount, newBalance, currencyKey);
+        sendNotification(uuid, "account-set", amount, newBalance, currencyKey);
 
         return newBalance;
     }
@@ -241,14 +248,26 @@ public class BankAccountManager {
     private void sendNotification(UUID uuid, String messageId, BigDecimal amount, BigDecimal balance, String currencyKey) {
         var player = Bukkit.getPlayer(uuid);
         if (player != null && player.isOnline()) {
-            var currency = Settings.instance().getCurrency(currencyKey);
-            Messenger.sendMessage(player, messageProvider.get(messageId),
-                    Map.of(
-                        "amount", String.format(currency.getFormat(), amount),
-                        "balance", String.format(currency.getFormat(), balance)
-                    ),
-                    messageProvider.get("messages.prefix"));
+            var currency = UnitedEconomyConfig.get().currencies().get(currencyKey);
+            United.messenger().send(player, messageId,
+                    String.format(currency.format(), amount),
+                    String.format(currency.format(), balance)
+                );
         }
+    }
+
+    // Helpers
+
+    private String validateWorld(String world)
+    {
+        if (!UnitedEconomyConfig.get().userPerWorldAccounts())
+            return UnitedEconomyConfig.get().defaultWorldName();
+
+        return world;
+    }
+
+    public CurrencyRecord getDefaultCurrency() {
+        return UnitedEconomyConfig.get().currencies().get(UnitedEconomyConfig.get().defaultCurrency());
     }
 
 }

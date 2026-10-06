@@ -6,7 +6,6 @@ import java.util.List;
 
 import org.bukkit.Bukkit;
 import org.bukkit.OfflinePlayer;
-import org.unitedlands.economy.Settings;
 import org.unitedlands.economy.managers.BankAccountManager;
 
 import net.milkbowl.vault.economy.Economy;
@@ -28,22 +27,22 @@ public class ULEconomyLegacy implements Economy {
 
     @Override
     public String currencyNamePlural() {
-        return Settings.instance().getDefaultCurrency().getNamePlural();
+        return BankAccountManager.instance().getDefaultCurrency().plural();
     }
 
     @Override
     public String currencyNameSingular() {
-        return Settings.instance().getDefaultCurrency().getNameSingular();
+        return BankAccountManager.instance().getDefaultCurrency().plural();
     }
 
     @Override
     public int fractionalDigits() {
-        return Settings.instance().getRoundingDigits();
+        return 2;
     }
 
     @Override
     public String format(double amount) {
-        String currencyFormat = Settings.instance().getDefaultCurrency().getFormat();
+        String currencyFormat = BankAccountManager.instance().getDefaultCurrency().format();
         return String.format(currencyFormat, amount);
     }
 

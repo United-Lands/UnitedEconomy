@@ -1,81 +1,87 @@
-package org.unitedlands.economy;
+// package org.unitedlands.economy;
 
-import java.util.Collection;
-import java.util.HashMap;
-import java.util.Map;
+// import java.util.Collection;
+// import java.util.HashMap;
+// import java.util.Map;
 
-import org.unitedlands.economy.classes.Currency;
-import org.unitedlands.utils.Logger;
+// import org.unitedlands.economy.classes.Currency;
 
-public class Settings {
+// public class Settings {
 
-    private static Settings instance;
+//     private static Settings instance;
 
-    public static Settings instance() {
-        return instance;
-    }
+//     public static Settings instance() {
+//         return instance;
+//     }
 
-    private final UnitedEconomy plugin;
+//     private final UnitedEconomy plugin;
 
-    private Map<String, Currency> currencies = new HashMap<>();
-    private String defaultCurrency;
-    private String defaultWorldName;
-    private int roundingDigits;
+//     private boolean usePerWorldAccounts = false;
 
-    public Settings(UnitedEconomy plugin) {
-        this.plugin = plugin;
-        instance = this;
+//     private Map<String, Currency> currencies = new HashMap<>();
+//     private String defaultCurrency;
+//     private String defaultWorldName;
+//     private int roundingDigits;
 
-        reloadConfig();
-    }
+//     public Settings(UnitedEconomy plugin) {
+//         this.plugin = plugin;
+//         instance = this;
 
-    public void reloadConfig() {
+//         reloadConfig();
+//     }
 
-        var config = plugin.getConfig();
+//     public void reloadConfig() {
 
-        currencies = new HashMap<>();
+//         var config = plugin.getConfig();
 
-        var currencySection = config.getConfigurationSection("currencies");
-        for (var key : currencySection.getKeys(false)) {
-            var currencyEntry = currencySection.getConfigurationSection(key);
-            var currency = new Currency(
-                    key,
-                    currencyEntry.getString("symbol", "X"),
-                    currencyEntry.getString("format", "%sX"),
-                    currencyEntry.getString("singular", "X"),
-                    currencyEntry.getString("plural", "X"));
-            currencies.put(key, currency);
-        }
+//         usePerWorldAccounts = config.getBoolean("use-per-world-accounts", false);
 
-        defaultCurrency = config.getString("default-currency");
-        defaultWorldName = config.getString("default-world-name");
-        Logger.log(defaultWorldName);
-        roundingDigits = config.getInt("rounding-digits", 2);
-    }
+//         currencies = new HashMap<>();
 
-    public Collection<Currency> getCurrencies() {
-        return currencies.values();
-    }
+//         var currencySection = config.getConfigurationSection("currencies");
+//         for (var key : currencySection.getKeys(false)) {
+//             var currencyEntry = currencySection.getConfigurationSection(key);
+//             var currency = new Currency(
+//                     key,
+//                     currencyEntry.getString("symbol", "X"),
+//                     currencyEntry.getString("format", "%sX"),
+//                     currencyEntry.getString("singular", "X"),
+//                     currencyEntry.getString("plural", "X"));
+//             currencies.put(key, currency);
+//         }
 
-    public Collection<String> getCurrencyKeys() {
-        return currencies.keySet();
-    }
+//         defaultCurrency = config.getString("default-currency");
+//         defaultWorldName = config.getString("default-world-name");
+//         roundingDigits = config.getInt("rounding-digits", 2);
+//     }
+
+//     public boolean usePerWorldAccounts() {
+//         return usePerWorldAccounts;
+//     }
+
+//     public Collection<Currency> getCurrencies() {
+//         return currencies.values();
+//     }
+
+//     public Collection<String> getCurrencyKeys() {
+//         return currencies.keySet();
+//     }
 
     
-    public Currency getCurrency(String key) {
-        return currencies.get(key);
-    }
+//     public Currency getCurrency(String key) {
+//         return currencies.get(key);
+//     }
 
-    public Currency getDefaultCurrency() {
-        return currencies.get(defaultCurrency);
-    }
+//     public Currency getDefaultCurrency() {
+//         return currencies.get(defaultCurrency);
+//     }
 
-    public String getDefaultWorldName() {
-        return defaultWorldName;
-    }
+//     public String getDefaultWorldName() {
+//         return defaultWorldName;
+//     }
 
-    public int getRoundingDigits() {
-        return roundingDigits;
-    }
+//     public int getRoundingDigits() {
+//         return roundingDigits;
+//     }
 
-}
+// }

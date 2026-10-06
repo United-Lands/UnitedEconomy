@@ -8,15 +8,14 @@ import org.unitedlands.economy.classes.BankAccountHolder;
 import org.unitedlands.economy.classes.db.BankAccountHolderService;
 import org.unitedlands.economy.classes.db.BankAccountService;
 import org.unitedlands.economy.classes.db.SchemaVersion;
-import org.unitedlands.utils.Logger;
-
-import com.j256.ormlite.dao.Dao;
-import com.j256.ormlite.dao.DaoManager;
-import com.j256.ormlite.jdbc.DataSourceConnectionSource;
-import com.j256.ormlite.support.ConnectionSource;
-import com.j256.ormlite.table.TableUtils;
-import com.zaxxer.hikari.HikariConfig;
-import com.zaxxer.hikari.HikariDataSource;
+import org.unitedlands.libs.ormlite.dao.Dao;
+import org.unitedlands.libs.ormlite.dao.DaoManager;
+import org.unitedlands.libs.ormlite.jdbc.DataSourceConnectionSource;
+import org.unitedlands.libs.ormlite.support.ConnectionSource;
+import org.unitedlands.libs.ormlite.table.TableUtils;
+import org.unitedlands.libs.zaxxer.hikari.HikariConfig;
+import org.unitedlands.libs.zaxxer.hikari.HikariDataSource;
+import org.unitedlands.utils.United;
 
 public class DatabaseManager {
 
@@ -78,12 +77,12 @@ public class DatabaseManager {
             hikariDataSource = new HikariDataSource(config);
             connectionSource = new DataSourceConnectionSource(hikariDataSource, jdbcUrl);
 
-            Logger.log("Connected to MySQL database with HikariCP.", "UnitedRegions");
+            United.logger().info("Connected to MySQL database with HikariCP.");
 
             verifySchemaVersion();
             registerServices();
 
-            Logger.log("DatabaseManager initialized successfully.", "UnitedRegions");
+            United.logger().info("DatabaseManager initialized successfully.");
 
         } catch (SQLException e) {
             e.printStackTrace();
@@ -135,11 +134,11 @@ public class DatabaseManager {
         try {
             if (connectionSource != null) {
                 connectionSource.close();
-                Logger.log("Disconnected from MySQL database.", "UnitedRegions");
+                United.logger().info("Disconnected from MySQL database.");
             }
             if (hikariDataSource != null) {
                 hikariDataSource.close();
-                Logger.log("HikariCP connection closed.", "UnitedRegions");
+                United.logger().info("HikariCP connection closed.");
             }
         } catch (Exception e) {
             e.printStackTrace();

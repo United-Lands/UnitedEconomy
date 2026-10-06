@@ -5,10 +5,9 @@ import java.util.Set;
 import java.util.UUID;
 import java.util.stream.Collectors;
 
-import org.unitedlands.economy.Settings;
+import org.unitedlands.economy.classes.config.UnitedEconomyConfig;
 import org.unitedlands.economy.classes.db.Identifiable;
-
-import com.j256.ormlite.field.DatabaseField;
+import org.unitedlands.libs.ormlite.field.DatabaseField;
 
 public class BankAccountHolder implements Identifiable {
 
@@ -62,7 +61,7 @@ public class BankAccountHolder implements Identifiable {
 
     public Set<BankAccount> getAccounts(String worldName) {
         if (worldName == null)
-            worldName = Settings.instance().getDefaultWorldName();
+            worldName = UnitedEconomyConfig.get().defaultWorldName();
         final String finalWorldName = worldName;
         return accounts.stream().filter(a -> a.getWorldName().equals(finalWorldName)).collect(Collectors.toSet());
     }
@@ -74,9 +73,9 @@ public class BankAccountHolder implements Identifiable {
 
     public BankAccount getAccount(String worldName, String currencyKey) {
         if (worldName == null)
-            worldName = Settings.instance().getDefaultWorldName();
+            worldName = UnitedEconomyConfig.get().defaultWorldName();
         if (currencyKey == null)
-            currencyKey = Settings.instance().getDefaultCurrency().getKey();
+            currencyKey = UnitedEconomyConfig.get().defaultCurrency();
 
         final String finalWorldName = worldName;
         final String finalCurrencyKey = currencyKey;

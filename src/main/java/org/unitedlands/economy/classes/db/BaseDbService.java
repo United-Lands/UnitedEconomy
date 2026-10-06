@@ -1,10 +1,10 @@
 package org.unitedlands.economy.classes.db;
 
-import com.j256.ormlite.dao.Dao;
-
 import java.sql.SQLException;
 import java.util.*;
 import java.util.concurrent.CompletableFuture;
+
+import org.unitedlands.libs.ormlite.dao.Dao;
 
 public abstract class BaseDbService<T extends Identifiable> {
 

@@ -3,10 +3,9 @@ package org.unitedlands.economy.classes;
 import java.math.BigDecimal;
 import java.util.UUID;
 
-import org.unitedlands.economy.Settings;
+import org.unitedlands.economy.classes.config.UnitedEconomyConfig;
 import org.unitedlands.economy.classes.db.Identifiable;
-
-import com.j256.ormlite.field.DatabaseField;
+import org.unitedlands.libs.ormlite.field.DatabaseField;
 
 public class BankAccount implements Identifiable {
 
@@ -34,8 +33,8 @@ public class BankAccount implements Identifiable {
     public BankAccount(UUID accountHolderId) {
         this.uuid = UUID.randomUUID();
         this.accountHolderId = accountHolderId;
-        this.worldName = Settings.instance().getDefaultWorldName();
-        this.currencyKey = Settings.instance().getDefaultCurrency().getKey();
+        this.worldName = UnitedEconomyConfig.get().defaultWorldName();
+        this.currencyKey = UnitedEconomyConfig.get().defaultCurrency();
         this.balance = new BigDecimal(0);
         this.created = System.currentTimeMillis();
     }
@@ -43,8 +42,8 @@ public class BankAccount implements Identifiable {
     public BankAccount(UUID accountHolderId, String worldName) {
         this.uuid = UUID.randomUUID();
         this.accountHolderId = accountHolderId;
-        this.worldName = worldName == null ? Settings.instance().getDefaultWorldName() : worldName;
-        this.currencyKey = Settings.instance().getDefaultCurrency().getKey();
+        this.worldName = worldName == null ? UnitedEconomyConfig.get().defaultWorldName() : worldName;
+        this.currencyKey = UnitedEconomyConfig.get().defaultCurrency();
         this.balance = new BigDecimal(0);
         this.created = System.currentTimeMillis();
     }
@@ -52,8 +51,8 @@ public class BankAccount implements Identifiable {
     public BankAccount(UUID accountHolderId, String worldName, String currencyKey) {
         this.uuid = UUID.randomUUID();
         this.accountHolderId = accountHolderId;
-        this.worldName = worldName == null ? Settings.instance().getDefaultWorldName() : worldName;
-        this.currencyKey = currencyKey == null ? Settings.instance().getDefaultCurrency().getKey() : currencyKey;
+        this.worldName = worldName == null ? UnitedEconomyConfig.get().defaultWorldName() : worldName;
+        this.currencyKey = currencyKey == null ? UnitedEconomyConfig.get().defaultCurrency() : currencyKey;
         this.balance = new BigDecimal(0);
         this.created = System.currentTimeMillis();
     }

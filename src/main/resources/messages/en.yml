@@ -1,0 +1,14 @@
+reload: "<dark_green>Plugin reloaded.</dark_green>"
+
+errors:
+  player-not-found: "<red>Could not find player {1}.</red>"
+  wrong-number-format: "<red>{1} is not a number.</red>"
+
+give: "<aqua>{2} given to player {1}. New balance: {3}</aqua>" 
+set: "<aqua>{2} given to player {1}. New balance: {3}</aqua>" 
+take: "<aqua>{2} taken from player {1}. New balance: {3}</aqua>" 
+balance: "<aqua>{1}'s balance:</aqua>" 
+
+account-set: "Your bank account has been set to {1}"
+account-deposit: "{1} has been put into your bank account, new balance: {2}"
+account-withdraw: "{1} has been taken from your bank account, new balance: {2}"
